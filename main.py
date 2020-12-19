@@ -1,9 +1,5 @@
 #coding = utf-8
 
-# to-do:
-#
-# colocar no github
-
 """ Módulos """
 import pygame
 import pygame_menu
