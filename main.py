@@ -30,11 +30,12 @@ class Dinossauro:
 
         self.nao_bateu = True # representa o estado de colisão entre o dinossauro e os cactos
 
-        self.x = 160 # posição x do dinossauro no mapa
-        self.y = 640 # posição y do dinossauro no mapa
         self.velocidade = 6 # velocidade do dinossauro
 
         self.img = pygame.image.load('data/dino.png') # imagem que representa o dinossauro
+        self.rect = self.img.get_rect()
+        self.rect.x = 160
+        self.rect.y = 500
 
     def movimentacao(self):
         """
@@ -43,35 +44,35 @@ class Dinossauro:
 
         comandos = pygame.key.get_pressed()
 
-        if(comandos[pygame.K_UP] and self.y == 640): # se o usuário entrar com 'UP BUTTON' -> pular
+        if(comandos[pygame.K_UP] and self.rect.y == 500): # se o usuário entrar com 'UP BUTTON' -> pular
             self.ta_pulando = True
             self.ta_subindo = True
 
-        if(comandos[pygame.K_DOWN] and self.y <= 640): # se o usuário entrar com 'DOWN BUTTON' -> cessar pulo
+        if(comandos[pygame.K_DOWN] and self.rect.y <= 500): # se o usuário entrar com 'DOWN BUTTON' -> cessar pulo
             self.quer_descer = True
 
         if(self.ta_pulando):
             if(self.ta_subindo and (not self.quer_descer)): # fase 1 do pulo -> subida
-                if(self.y <= 500):
+                if(self.rect.y <= 360):
                     self.ta_descendo = True
                     self.ta_subindo = False
                 else:
-                    self.y -= self.velocidade**2/8
+                    self.rect.y -= self.velocidade**2/8
             elif(self.ta_descendo or self.quer_descer): # fase 2 do pulo -> descida
-                if(self.y >= 640):
+                if(self.rect.y >= 500):
                     self.ta_descendo = False
                     self.ta_pulando = False
                     self.quer_descer = False
-                    self.y = 640
+                    self.rect.y = 500
                 else:
                     if(self.quer_descer): # se o usuário cessar o pulo, irá descer mais rapidamente
                         divisor = 4
                     else:
                         divisor = 8
 
-                    self.y += self.velocidade**2/divisor
+                    self.rect.y += self.velocidade**2/divisor
         
-    def checa_colisao(self, x_cacto, y_cacto):
+    def checa_colisao(self, cacto):
         """
         Método responsável pela checagem de colisão entre o dinossauro e os cactos
 
@@ -79,13 +80,7 @@ class Dinossauro:
         :param y_cacto: posição 'y' do cacto no mapa
         """
 
-        if(self.y-60 >= y_cacto+35 and (self.x+42 >= x_cacto and self.x <= x_cacto+45)):
-            # se a parte inferior do dinossauro coincidir com a parte superior do cacto, e
-            # se a lateral direita do dinossauro coincidir com a lateral esquerda do cacto, e
-            # se a lateral esquerda do dinossauro coincidir com a lateral direita do cacto, os dois colidem
-
-            # os valores somados e subtraidos das posições do dinossauro e dos cactos representam a largura
-            # das imagens que representam os dois objetos
+        if(self.rect.colliderect(cacto.rect)):
             self.nao_bateu = False
 
 class Cactos:
@@ -101,12 +96,12 @@ class Cactos:
         :param img: imagem que representa o cacto
         """
 
-        self.x = x # posição 'x' do cacto
-        self.y = 460 # posição 'y' do cacto
-
         self.x_inicial = x # posição inicial 'x' do cacto
         
         self.img = pygame.image.load(img) # imagem que representa o cacto
+        self.rect = self.img.get_rect()
+        self.rect.x = x
+        self.rect.y = 460
 
     def atualiza_posicao(self, atual, lista_cactos, x_dino, velocidade_cactos):
         """
@@ -120,14 +115,14 @@ class Cactos:
 
         aumento_dist_velocidade = 20 # incremento de distância utilizado em relação à velocidade do cacto
 
-        if(self.x+50 <= x_dino-150): # se o cacto estiver fora da janela do jogo, e
+        if(self.rect.x+50 <= x_dino-150): # se o cacto estiver fora da janela do jogo, e
             if(atual != 0): # se não for o primeiro cacto da lista de objetos de cactos
-                cacto_anterior = lista_cactos[atual-1].x # a posição 'x' do cacto anterior será dada pela posição de 'cacto-1',
+                cacto_anterior = lista_cactos[atual-1].rect.x # a posição 'x' do cacto anterior será dada pela posição de 'cacto-1',
             else: # senão,
-                cacto_anterior = lista_cactos[len(lista_cactos)-1].x # a posição 'x' do cacto anterior será dada pela posição do último cacto da lista
+                cacto_anterior = lista_cactos[len(lista_cactos)-1].rect.x # a posição 'x' do cacto anterior será dada pela posição do último cacto da lista
 
             # gera a nova posição 'x' do cacto que sumiu da tela levando em consideração a posição do cacto anterior
-            self.x = cacto_anterior + randint(int(300 + aumento_dist_velocidade*velocidade_cactos), int(600 + aumento_dist_velocidade*velocidade_cactos))
+            self.rect.x = cacto_anterior + randint(int(300 + aumento_dist_velocidade*velocidade_cactos), int(600 + aumento_dist_velocidade*velocidade_cactos))
 
 """ Funções """
 
@@ -170,10 +165,10 @@ def atualiza_tela(qtd_cenarios, qtd_cactos, lista_cenarios, x_cenarios, lista_ca
 
     for cacto_atual in range(0, qtd_cactos): # itera os cactos
         # e atualiza-os na tela
-        jogo_janela.blit(lista_cactos[cacto_atual].img, (lista_cactos[cacto_atual].x, lista_cactos[cacto_atual].y))
+        jogo_janela.blit(lista_cactos[cacto_atual].img, lista_cactos[cacto_atual].rect)
 
     if(dino != 'menu'): # se não for durante o menu,
-        jogo_janela.blit(dino.img, (dino.x, dino.y-140)) # atualiza a posição 'y' do dinossauro na tela
+        jogo_janela.blit(dino.img, dino) # atualiza a posição do dinossauro na tela
 
 def menu(x_cenarios, lista_cenarios, qtd_cenarios, lista_cactos, qtd_cactos):
     """
@@ -220,10 +215,10 @@ def menu(x_cenarios, lista_cenarios, qtd_cenarios, lista_cactos, qtd_cactos):
             x_cenarios[cenario] -= 10
 
         for cacto_atual in range(0, qtd_cactos): # faz passar os cactos na tela
-            if(cacto[cacto_atual].x <= -50):
-                cacto[cacto_atual].x = randint(763, 1500)
+            if(cacto[cacto_atual].rect.x <= -50):
+                cacto[cacto_atual].rect.x = randint(763, 1500)
 
-            cacto[cacto_atual].x -= 10.5
+            cacto[cacto_atual].rect.x -= 10.5
 
         # atualiza a tela com as informações modificadas acima
         atualiza_tela(qtd_cenarios, qtd_cactos, lista_cenarios, x_cenarios, lista_cactos)
@@ -247,7 +242,7 @@ def menu(x_cenarios, lista_cenarios, qtd_cenarios, lista_cactos, qtd_cactos):
         pygame.display.update() # atualiza a tela
     
     for cacto_atual in range(0, qtd_cactos): # ao encerrar o menu, reinicializa as posições 'x' dos cactos
-        cacto[cacto_atual].x = cacto[cacto_atual].x_inicial
+        cacto[cacto_atual].rect.x = cacto[cacto_atual].x_inicial
 
     pygame.mixer.music.stop() # encerra a música tocada durante a apresentação do menu
 
@@ -302,9 +297,6 @@ while janela_aberta: # loop principal do jogo
     tempo_final = datetime.now().strftime("%H %M %S").split()
     tempo_final = int(tempo_final[0])*3600 + int(tempo_final[1])*60 + int(tempo_final[2])
     
-    # atualiza a tela a cada 1 ms
-    pygame.time.delay(1)
-    
     # verifica se o usuário quer fechar a janela
     for event in pygame.event.get():
         if(event.type == pygame.QUIT):
@@ -325,18 +317,19 @@ while janela_aberta: # loop principal do jogo
     # atualiza a posicao dos cactos
     # se o cacto sumir da tela, será 're-spawnado'
     for cacto_atual in range(0, qtd_cactos):
-        cacto[cacto_atual].atualiza_posicao(atual=cacto_atual, lista_cactos=cacto, x_dino=dino.x, velocidade_cactos=cactos_velocidade)
-        cacto[cacto_atual].x -= cactos_velocidade
+        cacto[cacto_atual].atualiza_posicao(atual=cacto_atual, lista_cactos=cacto, x_dino=dino.rect.x, velocidade_cactos=cactos_velocidade)
+        cacto[cacto_atual].rect.x -= cactos_velocidade
 
         # checa se o dinossauro e o cacto mais próximo colidiram
-        dino.checa_colisao(x_cacto=cacto[cacto_atual].x, y_cacto=cacto[cacto_atual].y)
+        dino.checa_colisao(cacto=cacto[cacto_atual])
 
     # atualiza os itens da tela (dinossauro, cactos e cenário)
     atualiza_tela(qtd_cenarios=qtd_cenarios, qtd_cactos=qtd_cactos, lista_cenarios=cenarios, x_cenarios=x_cenarios, lista_cactos=cacto, dino=dino)
     # atualiza o cabeçalho do jogo (pontuação, velocidade dos cactos e mensagem)
     atualiza_cabecalho(pontos=pontuacao, velocidade=cactos_velocidade, msg=mensagem, cor=cor)
-    
+
     if(dino.nao_bateu): # se não houver colisão dinossauro-cacto,
+        pygame.time.delay(1) # atualiza a tela a cada 1ms
         pygame.display.update() # atualiza a tela;
     else: # senão, reinicializa as variáveis
         mensagem = 'Você perdeu! Recomeçando...'
@@ -354,12 +347,12 @@ while janela_aberta: # loop principal do jogo
         pontuacao = 0
 
         for cacto_atual in range(0, qtd_cactos):
-            cacto[cacto_atual].x = cacto[cacto_atual].x_inicial
+            cacto[cacto_atual].rect.x = cacto[cacto_atual].x_inicial
 
         dino.ta_pulando = False
         dino.ta_subindo = False
         dino.ta_descendo = False
-        dino.y = 640
+        dino.rect.y = 500
 
         periodo_noite = False
         mudar_periodo = True
