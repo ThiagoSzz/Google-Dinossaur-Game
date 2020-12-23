@@ -49,7 +49,7 @@ class Dinossauro:
 
         if(self.ta_pulando):
             if(self.ta_subindo and (not self.quer_descer)): # fase 1 do pulo -> subida
-                if(self.rect.y <= 360):
+                if(self.rect.y <= 340):
                     self.ta_descendo = True
                     self.ta_subindo = False
                 else:
@@ -109,7 +109,7 @@ class Cactos:
         :param velocidade_cactos: a velocidade atual dos cactos em relação ao dinossauro
         """
 
-        aumento_dist_velocidade = 20 # incremento de distância utilizado em relação à velocidade do cacto
+        aumento_dist_velocidade = 30 # incremento de distância utilizado em relação à velocidade do cacto
 
         if(self.rect.x+50 <= x_dino-150): # se o cacto estiver fora da janela do jogo, e
             if(atual != 0): # se não for o primeiro cacto da lista de objetos de cactos
