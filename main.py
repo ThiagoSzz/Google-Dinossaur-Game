@@ -28,7 +28,7 @@ class Dinossauro:
 
         self.velocidade = 6 # velocidade do dinossauro
 
-        self.img = pygame.image.load('data/dino.png') # imagem que representa o dinossauro
+        self.img = pygame.image.load('data/dino.png').convert_alpha(jogo_janela) # imagem que representa o dinossauro
         self.rect = self.img.get_rect()
         self.rect.x = 160
         self.rect.y = 500
@@ -94,7 +94,7 @@ class Cactos:
 
         self.x_inicial = x # posição inicial 'x' do cacto
         
-        self.img = pygame.image.load(img) # imagem que representa o cacto
+        self.img = pygame.image.load(img).convert_alpha(jogo_janela) # imagem que representa o cacto
         self.rect = self.img.get_rect()
         self.rect.x = x
         self.rect.y = 460
@@ -180,7 +180,7 @@ def menu(x_cenarios, lista_cenarios, qtd_cenarios, lista_cactos, qtd_cactos):
 
     menu_aberto = True # estado do menu
     janela_aberta = True # estado da janela
-    img_menu = pygame.image.load('data/dino_grande.png') # imagem que representa o dinossauro grande apresentado no menu
+    img_menu = pygame.image.load('data/dino_grande.png').convert_alpha(jogo_janela) # imagem que representa o dinossauro grande apresentado no menu
     txt_menu = pygame.font.SysFont('PressStart2P', 91) # inicializa uma fonte que será utilizada e seu tamanho
     txt_menu_menor = pygame.font.SysFont('PressStart2P', 25) # inicializa uma fonte que será utilizada e seu tamanho
 
@@ -192,7 +192,7 @@ def menu(x_cenarios, lista_cenarios, qtd_cenarios, lista_cactos, qtd_cactos):
 
     while menu_aberto:
 
-        pygame.time.delay(20)
+        pygame.time.delay(15)
 
         for event in pygame.event.get(): # se o usuário decidir fechar a janela
             if(event.type == pygame.QUIT):
@@ -244,7 +244,13 @@ def menu(x_cenarios, lista_cenarios, qtd_cenarios, lista_cactos, qtd_cactos):
 
     return janela_aberta # retorna o estado da janela
 
+pygame.init() 
+
+jogo_janela = pygame.display.set_mode((763, 640)) # janela de tamanho 763x640
+
 dino = Dinossauro() # criação do objeto que representará o dinossauro
+pygame.display.set_icon(dino.img)
+pygame.display.set_caption('Google Dinossaur Game')
 
 cacto = list() # cria a lista dos objetos de cactos
 cacto.append(Cactos(x=736, img='data/cacto1.png')) # inclui cacto
@@ -258,19 +264,13 @@ incremento_velocidade = 0.0003 # incremento da velocidade conforme a progressão
 musica_tocando = False
 
 x_cenarios = [0, 763]
-cenarios = [pygame.image.load('data/fundo1.png'), pygame.image.load('data/fundo2.png')] # imagens do cenário
+cenarios = [pygame.image.load('data/fundo1.png').convert_alpha(jogo_janela), pygame.image.load('data/fundo2.png').convert_alpha(jogo_janela)] # imagens do cenário
 qtd_cenarios = len(cenarios)
 
 dia = 1 # contador de dias/noites
 periodo_noite = False # representa o estado que indica se está de noite
 tempo_anoitecer = 38 # tempo levado para anoitecer e para voltar ao dia
 mudar_periodo = False
-
-jogo_janela = pygame.display.set_mode((763, 640)) # janela de tamanho 763x640
-pygame.display.set_icon(dino.img)
-pygame.display.set_caption('Google Dinossaur Game')
-
-pygame.init() 
 
 # apresenta o menu do jogo
 janela_aberta = menu(x_cenarios=x_cenarios, lista_cenarios=cenarios, qtd_cenarios=qtd_cenarios, lista_cactos=cacto, qtd_cactos=qtd_cactos)
@@ -294,6 +294,7 @@ while janela_aberta: # loop principal do jogo
     tempo_final = int(tempo_final[0])*3600 + int(tempo_final[1])*60 + int(tempo_final[2])
     
     # verifica se o usuário quer fechar a janela
+
     for event in pygame.event.get():
         if(event.type == pygame.QUIT):
             janela_aberta = False
@@ -325,7 +326,7 @@ while janela_aberta: # loop principal do jogo
     atualiza_cabecalho(pontos=pontuacao, velocidade=cactos_velocidade, msg=mensagem, cor=cor)
 
     if(dino.nao_bateu): # se não houver colisão dinossauro-cacto,
-        pygame.time.delay(1) # atualiza a tela a cada 1ms
+        pygame.time.delay(15) # atualiza a tela a cada 15ms
         pygame.display.update() # atualiza a tela;
     else: # senão, reinicializa as variáveis
         mensagem = 'Você perdeu! Recomeçando...'
@@ -371,25 +372,25 @@ while janela_aberta: # loop principal do jogo
 
     # mudança de cenário dia->noite e vice-versa
     if(not periodo_noite and mudar_periodo): # cenário de dia, contendo as imagens adaptadas
-        dino.img = pygame.image.load('data/dino.png')
+        dino.img = pygame.image.load('data/dino.png').convert_alpha(jogo_janela)
 
         for cacto_atual in range(0, qtd_cactos):
-            cacto[cacto_atual].img = pygame.image.load('data/cacto' + str(cacto_atual+1) + '.png')
+            cacto[cacto_atual].img = pygame.image.load('data/cacto' + str(cacto_atual+1) + '.png').convert_alpha(jogo_janela)
 
         for cenario in range(0, qtd_cenarios):
-            cenarios[cenario] = pygame.image.load('data/fundo' + str(cenario+1) + '.png')
+            cenarios[cenario] = pygame.image.load('data/fundo' + str(cenario+1) + '.png').convert_alpha(jogo_janela)
 
         cor = (80, 80, 80)
         mudar_periodo = False
         incremento_velocidade = 0.0003 # o incremento da velocidade dos cactos ao dia é de 0.0003
     elif(periodo_noite and mudar_periodo): # cenário de noite, contendo as imagens adaptadas
-        dino.img = pygame.image.load('data/n_dino.png')
+        dino.img = pygame.image.load('data/n_dino.png').convert_alpha(jogo_janela)
         
         for cacto_atual in range(0, qtd_cactos):
-            cacto[cacto_atual].img = pygame.image.load('data/n_cacto' + str(cacto_atual+1) + '.png')
+            cacto[cacto_atual].img = pygame.image.load('data/n_cacto' + str(cacto_atual+1) + '.png').convert_alpha(jogo_janela)
 
         for cenario in range(0, qtd_cenarios):
-            cenarios[cenario] = pygame.image.load('data/n_fundo' + str(cenario+1) + '.png')
+            cenarios[cenario] = pygame.image.load('data/n_fundo' + str(cenario+1) + '.png').convert_alpha(jogo_janela)
 
         cor = (255, 255, 255)
         mudar_periodo = False
